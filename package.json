@@ -1,5 +1,5 @@
 {
-  "name": "design-system-mcp",
+  "name": "design-sync",
   "version": "1.0.0",
   "description": "MCP Server for Bidirectional Design System Management",
   "main": "mcp-server.js",

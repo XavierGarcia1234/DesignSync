@@ -12,7 +12,7 @@ const util = require('util');
 const execPromise = util.promisify(exec);
 
 const server = new Server(
-  { name: "design-system-mcp", version: "1.0.0" },
+  { name: "design-sync", version: "1.0.0" },
   { capabilities: { tools: {} } }
 );
 
