@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Library Preview</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+        .preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .preview-header {
+            margin-bottom: 60px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 30px;
+        }
+        .preview-header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .component-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 40px;
+            align-items: stretch;
+        }
+        .component-demo {
+            padding: 40px;
+            background: var(--bg);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            position: relative;
+        }
+        [data-theme="light"] .component-demo {
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+        .component-code {
+            background: var(--bg-raised);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            max-height: 500px;
+        }
+        .component-code pre {
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--ink-muted);
+            white-space: pre-wrap;
+        }
+        .component-code .token-ref {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        h2.comp-title {
+            grid-column: 1 / -1;
+            font-size: 1.75rem;
+            margin-bottom: 20px;
+            font-family: var(--font-display);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    </script>
+
+    <div class="preview-container">
+        <div class="preview-header">
+            <h1>Component Library</h1>
+            <p style="color: var(--ink-muted); font-size: 1.1rem;">A stripped-down view of UI components with their HTML structure, functional Javascript/CSS, and token.json variables mappings.</p>
+        </div>
+
+        <!-- Interactive Components -->
+        <div class="component-row">
+            <h2 class="comp-title">Theme Toggle Button</h2>
+            <div class="component-demo">
+                <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: N/A (Functional Component)</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme"&gt;
+    &lt;svg class="sun-icon"&gt;...&lt;/svg&gt;
+    &lt;svg class="moon-icon"&gt;...&lt;/svg&gt;
+&lt;/button&gt;
+
+/* CSS */
+.theme-toggle-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-muted);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; width: 32px; height: var(--nav-height);
+}
+.theme-toggle-btn:hover { color: var(--ink); }
+.theme-toggle-btn svg {
+    position: absolute;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.sun-icon { opacity: var(--opacity-0); transform: rotate(-90deg) scale(var(--scale-50)); }
+.moon-icon { opacity: var(--opacity-100); transform: rotate(0) scale(var(--scale-100)); }
+[data-theme="light"] .sun-icon { opacity: var(--opacity-100); transform: rotate(0) scale(var(--scale-100)); }
+[data-theme="light"] .moon-icon { opacity: var(--opacity-0); transform: rotate(90deg) scale(var(--scale-50)); }
+
+&lt;!-- Javascript --&gt;
+&lt;script&gt;
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.addEventListener('click', () =&gt; {
+    document.documentElement.classList.add('theme-transition');
+    let theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+    setTimeout(() =&gt; { document.documentElement.classList.remove('theme-transition'); }, 400);
+});
+&lt;/script&gt;</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Dropdown Wrapper</h2>
+            <div class="component-demo">
+                <div class="dropdown-wrapper">
+                    <a href="#" class="nav-text dropdown-toggle" onclick="event.preventDefault()">WORK <span class="chevron">▼</span></a>
+                    <div class="dropdown-menu">
+                        <a href="#">Kahi v2.0 Redesign</a>
+                        <a href="#">AI-Powered Web Delivery</a>
+                        <a href="#">Headless Design System</a>
+                    </div>
+                </div>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.link.nav</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;div class="dropdown-wrapper"&gt;
+    &lt;a href="#" class="nav-text dropdown-toggle"&gt;WORK &lt;span class="chevron"&gt;▼&lt;/span&gt;&lt;/a&gt;
+    &lt;div class="dropdown-menu"&gt;
+        &lt;a href="#"&gt;Kahi v2.0 Redesign&lt;/a&gt;
+        &lt;a href="#"&gt;AI-Powered Web Delivery&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+/* CSS */
+.dropdown-wrapper {
+    position: relative; display: flex; align-items: stretch;
+}
+.chevron { font-size: 8px; margin-left: 0.5rem; transition: transform var(--duration-fast) var(--ease-default); }
+.dropdown-wrapper:hover .chevron { transform: rotate(180deg); }
+.dropdown-menu {
+    position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(var(--bg-rgb), 0.95); backdrop-filter: blur(var(--blur-md));
+    border: 1px solid var(--line);
+    min-width: 220px; display: flex; flex-direction: column;
+    opacity: var(--opacity-0); visibility: hidden; transition: all var(--duration-fast) var(--ease-default); z-index: 100;
+}
+.dropdown-wrapper:hover .dropdown-menu {
+    opacity: var(--opacity-100); visibility: visible; transform: translateX(-50%) translateY(0);
+}
+.dropdown-menu a {
+    padding: 1rem; font-family: var(--font-mono); font-size: var(--font-size-sm);
+    letter-spacing: var(--tracking-widest); color: var(--ink-muted); text-transform: uppercase;
+    border-bottom: 1px solid var(--line); transition: all var(--duration-fast) var(--ease-default); white-space: nowrap; display: block;
+}
+.dropdown-menu a:hover { background: var(--ink); color: var(--bg); }</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Accessibility Toggle</h2>
+            <div class="component-demo">
+                <label class="a11y-toggle">
+                    <span>Large Text</span>
+                    <input type="checkbox" id="a11y-large-text-toggle">
+                    <span class="a11y-slider"></span>
+                </label>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: N/A (Functional Component)</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;label class="a11y-toggle"&gt;
+    &lt;span&gt;Large Text&lt;/span&gt;
+    &lt;input type="checkbox" id="a11y-large-text-toggle"&gt;
+    &lt;span class="a11y-slider"&gt;&lt;/span&gt;
+&lt;/label&gt;
+
+/* CSS */
+.a11y-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; font-size: 14px; color: var(--ink-muted);
+}
+.a11y-toggle input { display: none; }
+.a11y-slider {
+    position: relative; width: 40px; height: 20px;
+    background-color: var(--bg-raised); border-radius: var(--radius-pill);
+    border: 1px solid var(--line); transition: background-color 0.3s ease;
+}
+.a11y-slider::before {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+    background-color: var(--ink-muted); border-radius: var(--radius-full);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.a11y-toggle input:checked+.a11y-slider {
+    background-color: var(--accent); border-color: var(--accent);
+}
+.a11y-toggle input:checked+.a11y-slider::before {
+    transform: translateX(20px); background-color: var(--accent-ink);
+}
+.a11y-toggle input:checked~span:first-child { color: var(--ink); }
+
+&lt;!-- Javascript --&gt;
+&lt;script&gt;
+const a11yToggle = document.getElementById('a11y-large-text-toggle');
+a11yToggle.addEventListener('change', (e) =&gt; {
+    if (e.target.checked) {
+        document.body.classList.add('a11y-large-text');
+        localStorage.setItem('a11y-large-text', 'true');
+    } else {
+        document.body.classList.remove('a11y-large-text');
+        localStorage.setItem('a11y-large-text', 'false');
+    }
+});
+&lt;/script&gt;</pre>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="component-row">
+            <h2 class="comp-title">Primary Button</h2>
+            <div class="component-demo">
+                <a href="#" class="btn btn-filled" onclick="event.preventDefault()">GET IN TOUCH</a>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.button.primary</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;a href="#" class="btn btn-filled"&gt;GET IN TOUCH&lt;/a&gt;
+
+/* CSS */
+.btn {
+    font-family: var(--font-mono); /* {typography.fontFamily.mono} */
+    font-size: var(--font-size-sm); /* {typography.fontSize.sm} */
+    letter-spacing: var(--tracking-widest); /* {typography.letterSpacing.widest} */
+    padding: var(--spacing-button); /* {dimension.spacing.button} */
+    text-transform: uppercase;
+    transition: all var(--duration-fast) var(--ease-default); /* {animation.duration.fast} {animation.easing.default} */
+    cursor: pointer;
+    border: 1px solid transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+    background-color: transparent;
+}
+.btn-filled {
+    background-color: var(--accent); /* {color.accent.base} */
+    color: var(--accent-ink); /* {color.accent.ink} */
+    font-weight: 600;
+}
+.btn-filled:hover {
+    background-color: var(--accent-hover); /* {color.accent.hover} */
+}</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Outline Button</h2>
+            <div class="component-demo">
+                <a href="#" class="btn btn-outline" onclick="event.preventDefault()">VIEW CASE STUDIES</a>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.button.outline</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;a href="#" class="btn btn-outline"&gt;VIEW CASE STUDIES&lt;/a&gt;
+
+/* CSS */
+.btn-outline {
+    border-color: var(--ink); /* {color.ink.primary} */
+    color: var(--ink); /* {color.ink.primary} */
+}
+.btn-outline:hover {
+    background-color: var(--ink); /* {color.ink.primary} */
+    color: var(--ink-inverse); /* {color.ink.inverse} */
+}</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Nav Button</h2>
+            <div class="component-demo">
+                <a href="#" class="btn-primary" style="display: inline-flex; height: 60px;" onclick="event.preventDefault()">LET'S TALK</a>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.button.nav</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;a href="#" class="btn-primary"&gt;LET'S TALK&lt;/a&gt;
+
+/* CSS */
+.btn-primary {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0 2rem;
+    background: var(--accent); /* {color.accent.base} */
+    color: var(--accent-ink); /* {color.accent.ink} */
+    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    transition: background var(--duration-fast) var(--ease-default);
+    text-decoration: none; border: none; cursor: pointer;
+}
+.btn-primary:hover {
+    background: var(--accent-hover);
+}</pre>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="component-row">
+            <h2 class="comp-title">Card Link</h2>
+            <div class="component-demo">
+                <a href="#" class="card-link" onclick="event.preventDefault()">EXPLORE CASE STUDY ↗</a>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.link.card</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;a href="#" class="card-link"&gt;EXPLORE CASE STUDY ↗&lt;/a&gt;
+
+/* CSS */
+.card-link {
+    font-family: var(--font-mono); /* {typography.fontFamily.mono} */
+    font-size: var(--font-size-sm); /* {typography.fontSize.sm} */
+    color: var(--ink); /* {color.ink.primary} */
+    letter-spacing: var(--tracking-widest); /* {typography.letterSpacing.widest} */
+    text-transform: uppercase;
+    display: inline-flex; align-items: center;
+    margin-top: auto;
+}
+.card-link:hover {
+    color: var(--accent); /* {color.accent.base} */
+}</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Nav Link</h2>
+            <div class="component-demo" style="background: var(--bg-raised);">
+                <div style="display: flex; gap: 1.5rem;">
+                    <a href="#" class="nav-text active" onclick="event.preventDefault()">SYSTEM</a>
+                    <a href="#" class="nav-text" onclick="event.preventDefault()">ABOUT</a>
+                </div>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.link.nav</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;a href="#" class="nav-text active"&gt;SYSTEM&lt;/a&gt;
+&lt;a href="#" class="nav-text"&gt;ABOUT&lt;/a&gt;
+
+/* CSS */
+.nav-text {
+    display: flex; align-items: center;
+    font-family: var(--font-mono); /* {typography.fontFamily.mono} */
+    font-size: var(--font-size-sm); /* {typography.fontSize.sm} */
+    letter-spacing: var(--tracking-widest); text-transform: uppercase;
+    color: var(--ink-muted); /* {color.ink.muted} */
+    transition: color var(--duration-fast) var(--ease-default); cursor: pointer;
+}
+.nav-text:hover {
+    color: var(--ink); /* {color.ink.primary} */
+}
+.nav-text.active {
+    color: var(--ink); /* {color.ink.primary} */
+}</pre>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="component-row">
+            <h2 class="comp-title">Default Tag</h2>
+            <div class="component-demo">
+                <span class="tag">UX RESEARCH</span>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.tag.default</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;span class="tag"&gt;UX RESEARCH&lt;/span&gt;
+
+/* CSS */
+.tag {
+    font-family: var(--font-mono); /* {typography.fontFamily.mono} */
+    font-size: var(--font-size-xs); /* {typography.fontSize.xs} */
+    padding: var(--spacing-tag); /* {dimension.spacing.tag} */
+    border: 1px solid var(--line); /* {color.border.line} */
+    color: var(--ink-muted); /* {color.ink.muted} */
+    letter-spacing: var(--tracking-wide); /* {typography.letterSpacing.wide} */
+    transition: background-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default);
+    cursor: default;
+}
+.tag:hover {
+    color: var(--accent-ink); /* {color.accent.ink} */
+    border-color: var(--accent); /* {color.accent.base} */
+    background-color: var(--accent); /* {color.accent.base} */
+}</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Colored Tags</h2>
+            <div class="component-demo" style="gap: 10px; flex-wrap: wrap;">
+                <span class="tag" data-color="blue">BLUE</span>
+                <span class="tag" data-color="orange">ORANGE</span>
+                <span class="tag" data-color="purple">PURPLE</span>
+                <span class="tag" data-color="red">RED</span>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.tag.colored</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;span class="tag" data-color="blue"&gt;BLUE&lt;/span&gt;
+&lt;span class="tag" data-color="orange"&gt;ORANGE&lt;/span&gt;
+
+/* CSS */
+.tag[data-color="blue"]:hover {
+    background-color: var(--tag-blue); /* {color.tags.blue} */
+    border-color: var(--tag-blue); /* {color.tags.blue} */
+    color: var(--ink-inverse); /* {color.ink.inverse} */
+}
+.tag[data-color="orange"]:hover {
+    background-color: var(--tag-orange); /* {color.tags.orange} */
+    border-color: var(--tag-orange); /* {color.tags.orange} */
+    color: var(--ink-inverse); /* {color.ink.inverse} */
+}
+.tag[data-color="purple"]:hover {
+    background-color: var(--tag-purple); /* {color.tags.purple} */
+    border-color: var(--tag-purple); /* {color.tags.purple} */
+    color: var(--ink-inverse); /* {color.ink.inverse} */
+}
+.tag[data-color="red"]:hover {
+    background-color: var(--tag-red); /* {color.tags.red} */
+    border-color: var(--tag-red); /* {color.tags.red} */
+    color: var(--ink-inverse); /* {color.ink.inverse} */
+}</pre>
+            </div>
+        </div>
+
+        <!-- HUD Elements -->
+        <div class="component-row">
+            <h2 class="comp-title">Card HUD</h2>
+            <div class="component-demo">
+                <div class="card-hud" style="margin-bottom:0;">
+                    <span class="card-num bg-accent">01</span>
+                    <span class="card-category">PRODUCT DESIGN</span>
+                </div>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.hud.card</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;div class="card-hud"&gt;
+    &lt;span class="card-num bg-accent"&gt;01&lt;/span&gt;
+    &lt;span class="card-category"&gt;PRODUCT DESIGN&lt;/span&gt;
+&lt;/div&gt;
+
+/* CSS */
+.card-hud {
+    display: flex; align-items: center; gap: 1rem;
+    font-family: var(--font-mono); /* {typography.fontFamily.mono} */
+    font-size: var(--font-size-sm); /* {typography.fontSize.sm} */
+    letter-spacing: var(--tracking-widest); /* {typography.letterSpacing.widest} */
+    margin-bottom: 1.5rem;
+}
+.card-num {
+    padding: 0.2rem 0.5rem;
+    color: var(--accent-ink);
+    font-weight: 600;
+}
+.card-num.bg-accent {
+    background-color: var(--accent); /* {color.accent.base} */
+}
+.card-category {
+    color: var(--ink-muted); /* {color.ink.muted} */
+}</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Status Indicator</h2>
+            <div class="component-demo">
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span class="status-dot"></span>
+                    <span class="hud-subtitle" style="color:var(--ink);">ACTIVE</span>
+                </div>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.hud.status</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;div style="display: inline-flex; align-items: center; gap: 0.5rem;"&gt;
+    &lt;span class="status-dot"&gt;&lt;/span&gt;
+    &lt;span class="hud-subtitle"&gt;ACTIVE&lt;/span&gt;
+&lt;/div&gt;
+
+/* CSS */
+.status-dot {
+    width: var(--status-dot-size); /* {dimension.sizing.statusDot} */
+    height: var(--status-dot-size); /* {dimension.sizing.statusDot} */
+    background: var(--accent); /* {color.accent.base} */
+    box-shadow: 0 0 8px var(--accent);
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}</pre>
+            </div>
+        </div>
+
+        <div class="component-row">
+            <h2 class="comp-title">Repack Tools Button</h2>
+            <div class="component-demo">
+                <button type="button" class="box-hud__repack" id="repack-btn" style="opacity: 1; transform: translateY(0); position: relative; pointer-events: auto; width: 210px; height: 34px;">↺ REPACK THE TOOLS</button>
+            </div>
+            <div class="component-code">
+                <span class="token-ref">Token: component.hud.repack</span>
+                <pre>&lt;!-- HTML --&gt;
+&lt;button type="button" class="box-hud__repack" id="repack-btn"&gt;
+    ↺ REPACK THE TOOLS
+&lt;/button&gt;
+
+/* CSS */
+.box-hud__repack {
+    background: rgba(var(--bg-rgb), 0.6); /* {color.background.overlay} */
+    border: 1px solid var(--line); /* {color.border.line} */
+    color: var(--ink); /* {color.ink.primary} */
+    cursor: pointer;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: var(--tracking-widest); white-space: nowrap;
+    transition: opacity var(--duration-normal) var(--ease-default), transform var(--duration-normal) var(--ease-default), color var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default), background-color var(--duration-fast) var(--ease-default);
+}
+.box-hud__repack:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+&lt;!-- Javascript --&gt;
+&lt;script&gt;
+// Handled by hero-physics.js to reset the engine 
+const repackBtn = document.getElementById('repack-btn');
+repackBtn.addEventListener('click', () =&gt; {
+    // Reset Matter.js bodies to starting positions
+    resetPhysicsEngine();
+});
+&lt;/script&gt;</pre>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Accessibility HUD FAB (Floating) -->
+    <div class="a11y-fab-wrapper">
+        <div class="a11y-menu" id="a11y-menu">
+            <div class="a11y-menu-header">Accessibility</div>
+            <label class="a11y-toggle">
+                <span>Large Text</span>
+                <input type="checkbox" id="a11y-large-text-toggle-fab">
+                <span class="a11y-slider"></span>
+            </label>
+        </div>
+        <button class="a11y-fab" id="a11y-fab" aria-label="Accessibility Options">
+            <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <circle cx="12" cy="4" r="2.5" fill="currentColor" stroke="none"></circle>
+                <path d="M12 9v6"></path>
+                <path d="M4 9h16"></path>
+                <path d="M12 15l-3.5 7"></path>
+                <path d="M12 15l3.5 7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Scripts to retain functionality -->
+    <script>
+        // 1. Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        function updateLogos(theme) {
+            const logos = document.querySelectorAll('img[src*="xlogo"]');
+            logos.forEach(logo => {
+                if (theme === 'light') {
+                    logo.src = logo.src.replace('xlogo.svg', 'xlogo-light.svg');
+                } else {
+                    logo.src = logo.src.replace('xlogo-light.svg', 'xlogo.svg');
+                }
+            });
+        }
+        
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.add('theme-transition');
+                let theme = document.documentElement.getAttribute('data-theme');
+                if (theme === 'light') {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'dark');
+                    updateLogos('dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                    updateLogos('light');
+                }
+                setTimeout(() => {
+                    document.documentElement.classList.remove('theme-transition');
+                }, 400);
+            });
+        }
+
+        // 2. Large Text Toggles
+        const a11yLargeTextToggle = document.getElementById('a11y-large-text-toggle');
+        const a11yLargeTextToggleFab = document.getElementById('a11y-large-text-toggle-fab');
+        
+        const isLargeText = localStorage.getItem('a11y-large-text') === 'true';
+        if (isLargeText) {
+            document.body.classList.add('a11y-large-text');
+            if (a11yLargeTextToggle) a11yLargeTextToggle.checked = true;
+            if (a11yLargeTextToggleFab) a11yLargeTextToggleFab.checked = true;
+        }
+
+        function toggleLargeText(e) {
+            const checked = e.target.checked;
+            if (checked) {
+                document.body.classList.add('a11y-large-text');
+                localStorage.setItem('a11y-large-text', 'true');
+            } else {
+                document.body.classList.remove('a11y-large-text');
+                localStorage.setItem('a11y-large-text', 'false');
+            }
+            if (a11yLargeTextToggle) a11yLargeTextToggle.checked = checked;
+            if (a11yLargeTextToggleFab) a11yLargeTextToggleFab.checked = checked;
+        }
+
+        if (a11yLargeTextToggle) a11yLargeTextToggle.addEventListener('change', toggleLargeText);
+        if (a11yLargeTextToggleFab) a11yLargeTextToggleFab.addEventListener('change', toggleLargeText);
+
+        // 3. A11y FAB Menu
+        const a11yFab = document.getElementById('a11y-fab');
+        const a11yMenu = document.getElementById('a11y-menu');
+        if (a11yFab && a11yMenu) {
+            a11yFab.addEventListener('click', () => {
+                a11yMenu.classList.toggle('is-open');
+            });
+            document.addEventListener('click', (e) => {
+                if (!a11yFab.contains(e.target) && !a11yMenu.contains(e.target)) {
+                    a11yMenu.classList.remove('is-open');
+                }
+            });
+        }
+
+        // 4. Repack Button Stub
+        const repackBtn = document.getElementById('repack-btn');
+        if (repackBtn) {
+            repackBtn.addEventListener('click', () => {
+                console.log('Repack triggered in component preview context.');
+                repackBtn.style.transform = 'translateY(2px)';
+                setTimeout(() => repackBtn.style.transform = 'translateY(0)', 150);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "design-system-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for Bidirectional Design System Management",
+  "main": "mcp-server.js",
+  "scripts": {
+    "start": "node mcp-server.js",
+    "build:tokens": "style-dictionary build -c style-dictionary-config.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "style-dictionary": "^4.0.0"
+  }
+}
