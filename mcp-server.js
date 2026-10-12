@@ -229,6 +229,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: ["message"]
         }
+      },
+      {
+        name: "audit_tokens",
+        description: "Audit client codebases (Swift/iOS, React/TS, CSS) for design token compliance. Scans for hardcoded values (colors, font sizes, corner radii) and checks for primitive-vs-semantic token anti-patterns (e.g. using primitive 'dimensionRadiusMd' instead of 'componentButtonBaseRadius'). Can run in audit-only or auto-fix mode.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            targetPath: { type: "string", description: "Path to the consumer project directory or file to audit (e.g. '../DesignSyncShowcase' or absolute path)" },
+            autoFix: { type: "boolean", description: "If true, automatically updates source files with recommended semantic tokens (default: false)" }
+          },
+          required: ["targetPath"]
+        }
       }
     ]
   };
@@ -596,6 +608,184 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [{
             type: "text",
             text: textResult || "No compiled artifacts found. Run 'build_tokens' first."
+          }]
+        };
+      }
+
+      case "audit_tokens": {
+        const { targetPath, autoFix = false } = request.params.arguments || {};
+        if (!targetPath) {
+          throw new Error("Missing required argument 'targetPath'");
+        }
+
+        let resolvedScanPath = targetPath;
+        if (!path.isAbsolute(targetPath)) {
+          resolvedScanPath = path.resolve(PROJECT_ROOT, targetPath);
+        }
+
+        // Recursively find files (.swift, .tsx, .jsx, .html, .css)
+        async function getFiles(dir) {
+          const dirents = await fs.readdir(dir, { withFileTypes: true });
+          const files = await Promise.all(dirents.map((dirent) => {
+            const res = path.resolve(dir, dirent.name);
+            if (dirent.isDirectory()) {
+              if (['.git', 'node_modules', 'DerivedData', '.build', 'Pods'].includes(dirent.name)) return [];
+              return getFiles(res);
+            }
+            return res;
+          }));
+          return files.flat();
+        }
+
+        let targetFiles = [];
+        try {
+          const stat = await fs.stat(resolvedScanPath);
+          if (stat.isDirectory()) {
+            targetFiles = await getFiles(resolvedScanPath);
+          } else {
+            targetFiles = [resolvedScanPath];
+          }
+        } catch (e) {
+          throw new Error(`Cannot access target path '${resolvedScanPath}': ${e.message}`);
+        }
+
+        // Filter relevant source files, excluding the DesignSync package itself
+        targetFiles = targetFiles.filter(f => 
+          (f.endsWith('.swift') || f.endsWith('.tsx') || f.endsWith('.jsx') || f.endsWith('.css') || f.endsWith('.html')) &&
+          !f.includes('StyleDictionary.swift')
+        );
+
+        if (targetFiles.length === 0) {
+          return {
+            content: [{
+              type: "text",
+              text: `No Swift, TSX, CSS, or HTML files found in '${resolvedScanPath}' to audit.`
+            }]
+          };
+        }
+
+        const violations = [];
+        let totalFilesScanned = 0;
+        let filesFixed = 0;
+
+        // Rules to audit
+        const rules = [
+          {
+            id: 'hardcoded-color-hex',
+            desc: 'Hardcoded Hex Color literal',
+            regex: /#([0-9a-fA-F]{3,8})\b/g,
+            severity: 'error',
+            fixSuggestion: 'Use semantic token Color.ds... or var(--color-...)'
+          },
+          {
+            id: 'hardcoded-color-swiftui',
+            desc: 'Hardcoded SwiftUI Color constructor',
+            regex: /Color\((red|hex):\s*[^)]+\)/g,
+            severity: 'error',
+            fixSuggestion: 'Use semantic token Color.ds...'
+          },
+          {
+            id: 'primitive-radius-button',
+            desc: 'Primitive radius used on Button (breaks zero-effort theme syncing)',
+            regex: /\.cornerRadius\(\s*(StyleDictionarySize\.)?dimensionRadius(Md|Sm|Pill|Full)\s*\)/g,
+            severity: 'warning',
+            fixReplacement: '.cornerRadius(StyleDictionarySize.componentButtonBaseRadius)',
+            fixSuggestion: 'StyleDictionarySize.componentButtonBaseRadius'
+          },
+          {
+            id: 'primitive-accent-button-bg',
+            desc: 'Primitive accent color used on Button background',
+            regex: /\.background\(\s*(Color\.)?dsAccentBase\s*\)/g,
+            severity: 'warning',
+            fixReplacement: '.background(Color.dsButtonFilledBackgroundDefault)',
+            fixSuggestion: 'Color.dsButtonFilledBackgroundDefault'
+          },
+          {
+            id: 'hardcoded-numeric-radius',
+            desc: 'Hardcoded numeric corner radius',
+            regex: /\.cornerRadius\(\s*([0-9]+(\.[0-9]+)?)\s*\)/g,
+            severity: 'warning',
+            fixSuggestion: 'StyleDictionarySize.componentButtonBaseRadius or StyleDictionarySize.componentHudCardRadius'
+          }
+        ];
+
+        for (const filePath of targetFiles) {
+          totalFilesScanned++;
+          let content = await fs.readFile(filePath, 'utf8');
+          const lines = content.split('\n');
+          let fileHasFixes = false;
+
+          lines.forEach((line, lineIdx) => {
+            // Skip comments
+            const trimmed = line.trim();
+            if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) return;
+
+            rules.forEach(rule => {
+              rule.regex.lastIndex = 0;
+              let match;
+              while ((match = rule.regex.exec(line)) !== null) {
+                violations.push({
+                  file: path.relative(resolvedScanPath, filePath) || path.basename(filePath),
+                  line: lineIdx + 1,
+                  matched: match[0],
+                  ruleId: rule.id,
+                  desc: rule.desc,
+                  severity: rule.severity,
+                  suggestion: rule.fixSuggestion
+                });
+              }
+            });
+          });
+
+          if (autoFix) {
+            let updatedContent = content;
+            rules.filter(r => r.fixReplacement).forEach(rule => {
+              rule.regex.lastIndex = 0;
+              if (rule.regex.test(updatedContent)) {
+                updatedContent = updatedContent.replace(rule.regex, rule.fixReplacement);
+                fileHasFixes = true;
+              }
+            });
+
+            if (fileHasFixes && updatedContent !== content) {
+              await fs.writeFile(filePath, updatedContent, 'utf8');
+              filesFixed++;
+            }
+          }
+        }
+
+        const score = Math.max(0, 100 - (violations.length * 5));
+        let report = `═══════════════════════════════════════════════════════\n`;
+        report += `🔍 DesignSync Token Compliance Audit Report\n`;
+        report += `═══════════════════════════════════════════════════════\n`;
+        report += `• Target: ${resolvedScanPath}\n`;
+        report += `• Files Scanned: ${totalFilesScanned}\n`;
+        report += `• Violations Detected: ${violations.length}\n`;
+        report += `• Compliance Score: ${score}% ${score >= 90 ? '🟢' : score >= 70 ? '🟡' : '🔴'}\n\n`;
+
+        if (violations.length === 0) {
+          report += `✅ All scanned files are 100% compliant with design system tokens!\n`;
+        } else {
+          report += `📋 Violations Breakdown:\n`;
+          violations.forEach((v, idx) => {
+            const icon = v.severity === 'error' ? '❌' : '⚠️';
+            report += `${idx + 1}. ${icon} [${v.severity.toUpperCase()}] ${v.file}:${v.line}\n`;
+            report += `   Code: \`${v.matched}\`\n`;
+            report += `   Issue: ${v.desc}\n`;
+            report += `   Recommendation: ${v.suggestion}\n\n`;
+          });
+        }
+
+        if (autoFix) {
+          report += `✨ Auto-Fix Applied: Successfully refactored ${filesFixed} file(s) with recommended semantic tokens.\n`;
+        } else if (violations.some(v => rules.find(r => r.id === v.ruleId && r.fixReplacement))) {
+          report += `💡 Tip: Run 'audit_tokens' with { "autoFix": true } to automatically migrate primitive anti-patterns to semantic tokens.\n`;
+        }
+
+        return {
+          content: [{
+            type: "text",
+            text: report
           }]
         };
       }
