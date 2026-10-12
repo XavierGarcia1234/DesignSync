@@ -5,6 +5,7 @@
   "main": "mcp-server.js",
   "scripts": {
     "start": "node mcp-server.js",
+    "setup": "node install.js",
     "build:tokens": "style-dictionary build -c style-dictionary-config.js"
   },
   "dependencies": {

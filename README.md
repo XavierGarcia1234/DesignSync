@@ -33,39 +33,26 @@ You don't need to know how to code to use DesignSync. Follow these steps to conn
 Ensure you have installed:
 1. **Node.js** (v18 or newer) — [Download Node.js](https://nodejs.org/)
 2. **Git** — [Download Git](https://git-scm.com/)
-
-### Step 2: Clone & Install
-Open your terminal and run:
+### Step 2: One-Step Auto Setup (Recommended)
+Open your terminal in the cloned folder and run:
 ```bash
 git clone https://github.com/XavierGarcia1234/DesignSync.git
 cd DesignSync
-npm install
+npm run setup
 ```
+> 💡 **Tip**: You can also just double-click **`install.sh`** (Mac/Linux) or **`install.bat`** (Windows)!
 
-### Step 3: Connect to Your AI Assistant
+**That's it!** The setup script will automatically:
+* Install all required dependencies
+* Compile your design tokens
+* Detect your operating system and configure **Claude Desktop** automatically with the right file paths
 
-#### Option A: Claude Desktop
-1. Open your Claude Desktop configuration file:
-   * **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   * **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-   * **Linux**: `~/.config/Claude/claude_desktop_config.json`
-2. Add the `design-sync` server under `mcpServers`:
-```json
-{
-  "mcpServers": {
-    "design-sync": {
-      "command": "node",
-      "args": ["/ABSOLUTE/PATH/TO/DesignSync/mcp-server.js"]
-    }
-  }
-}
-```
-*(Replace `/ABSOLUTE/PATH/TO/DesignSync` with the actual path to your cloned folder).*
+Simply close and reopen Claude Desktop, and you will see the hammer/tool icon indicating DesignSync is connected.
 
-3. Restart Claude Desktop. You will see the hammer/tool icon indicating DesignSync is connected.
+---
 
-#### Option B: Cursor / Antigravity IDE
-Add the MCP server in your IDE's MCP settings:
+### Step 3: Alternative IDE Setup (Cursor / Antigravity)
+If you use Cursor or Antigravity IDE instead of Claude Desktop, add the MCP server in your IDE's MCP settings:
 * **Name**: `design-sync`
 * **Type**: `command` (stdio)
 * **Command**: `node /ABSOLUTE/PATH/TO/DesignSync/mcp-server.js`
@@ -142,6 +129,9 @@ struct ContentView: View {
 ```text
 ├── tokens.json                   # Single source of truth (DTCG standard)
 ├── mcp-server.js                 # Model Context Protocol server
+├── install.js                    # 1-click automatic setup script for designers
+├── install.sh                    # Mac/Linux launcher script
+├── install.bat                   # Windows double-click launcher
 ├── style-dictionary-config.js    # Multi-platform compilation config
 ├── components.html               # Interactive visual component showcase
 ├── style.css                     # Component showcase stylesheet
