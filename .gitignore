@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs & caches
+.build/
+.swiftpm/
+
+# OS metadata
+.DS_Store
+Thumbs.db

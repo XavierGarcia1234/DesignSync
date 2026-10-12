@@ -49,12 +49,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: { type: "object", properties: {} }
       },
       {
+        name: "sync_latest_tokens",
+        description: "Pull the latest design tokens and component styles from git to ensure you are designing with the newest updates.",
+        inputSchema: { type: "object", properties: {} }
+      },
+      {
         name: "commit_to_git",
-        description: "Stage and commit changes to git for developer review.",
+        description: "Stage, branch, and commit design changes to git. If on main/master, automatically creates a dedicated review branch so designers don't have to name or manage branches manually.",
         inputSchema: {
           type: "object",
           properties: {
-            message: { type: "string", description: "Commit message describing the design changes" }
+            message: { type: "string", description: "Commit message describing the design changes (e.g., 'Update button border and primary color')" },
+            branch: { type: "string", description: "Optional custom branch name. If omitted, a branch is automatically generated from the message (e.g., 'tokens/update-button-border-1011')" }
           },
           required: ["message"]
         }
@@ -116,12 +122,84 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return { content: [{ type: "text", text: `Build successful:\n${stdout}` }] };
       }
 
+      case "sync_latest_tokens": {
+        // 1. Pull latest commits from git
+        let pullOutput = "";
+        try {
+          const { stdout } = await execPromise('git pull');
+          pullOutput = stdout;
+        } catch (err) {
+          pullOutput = `Warning: git pull could not complete (${err.message}). Using local files.`;
+        }
+
+        // 2. Re-compile Style Dictionary to ensure all build artifacts are up to date
+        const { stdout: buildOut } = await execPromise('npx style-dictionary build -c style-dictionary-config.js');
+        return { 
+          content: [{ 
+            type: "text", 
+            text: `Synced latest design system:\n${pullOutput}\n\nRebuilt Tokens:\n${buildOut}` 
+          }] 
+        };
+      }
+
       case "commit_to_git": {
-        const { message } = request.params.arguments;
-        // Stage all changes (tokens, generated css, etc) and commit
+        const { message, branch } = request.params.arguments;
+        
+        // 1. Check current branch
+        let currentBranch = "main";
+        try {
+          const { stdout } = await execPromise('git rev-parse --abbrev-ref HEAD');
+          currentBranch = stdout.trim();
+        } catch (_) {}
+
+        let targetBranch = branch;
+        let createdBranch = false;
+
+        // 2. Automated branch naming: If on main/master and no branch specified, auto-generate one
+        if (!targetBranch) {
+          if (currentBranch === "main" || currentBranch === "master") {
+            const slug = (message || "token-update")
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-|-$/g, '')
+              .slice(0, 30);
+            const dateSuffix = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+            targetBranch = `tokens/${slug || 'update'}-${dateSuffix}`;
+          } else {
+            targetBranch = currentBranch;
+          }
+        }
+
+        // 3. Switch to the target branch if needed
+        if (targetBranch !== currentBranch) {
+          try {
+            await execPromise(`git checkout -b ${targetBranch}`);
+            createdBranch = true;
+          } catch (branchErr) {
+            // If branch already exists, switch to it
+            await execPromise(`git checkout ${targetBranch}`);
+          }
+        }
+
+        // 4. Stage and commit
         await execPromise('git add .');
-        const { stdout } = await execPromise(`git commit -m "${message}"`);
-        return { content: [{ type: "text", text: `Successfully committed design changes:\n${stdout}` }] };
+        const { stdout: commitOut } = await execPromise(`git commit -m "${message}"`);
+        
+        // 5. Attempt git push to remote
+        let pushStatus = "";
+        try {
+          const { stdout: pushOut, stderr: pushErr } = await execPromise(`git push -u origin ${targetBranch}`);
+          pushStatus = `\n\nPushed to remote branch '${targetBranch}'. Ready for Pull Request review!\n${pushOut || pushErr}`;
+        } catch (pushErr) {
+          pushStatus = `\n\nChanges safely committed to local branch '${targetBranch}'. (Run 'git push origin ${targetBranch}' when connected to remote).`;
+        }
+
+        return { 
+          content: [{ 
+            type: "text", 
+            text: `Successfully committed design changes to branch '${targetBranch}':\n${commitOut}${pushStatus}` 
+          }] 
+        };
       }
 
       default:

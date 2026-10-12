@@ -15,10 +15,10 @@ module.exports = {
         }
       }]
     },
-    // 2. Compile to iOS Swift classes
+    // 2. Compile to iOS Swift classes (Swift Package Manager convention)
     ios: {
       transformGroup: 'ios-swift',
-      buildPath: 'build/ios/',
+      buildPath: 'Sources/DesignSync/',
       files: [{
         destination: 'StyleDictionary.swift',
         format: 'ios-swift/class.swift'
