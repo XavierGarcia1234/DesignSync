@@ -66,29 +66,35 @@ public struct StyleDictionaryColor {
 }
 
 public struct StyleDictionarySize {
-    public static let typographyFontSizeXs = CGFloat(144.00)
-    public static let typographyFontSizeSm = CGFloat(176.00)
+    public static let typographyFontSizeXs = CGFloat(9.00)
+    public static let typographyFontSizeSm = CGFloat(11.00)
     public static let typographyLetterSpacingTight = CGFloat(-0.64)
     public static let typographyLetterSpacingSnug = CGFloat(-0.32)
     public static let typographyLetterSpacingNormal = CGFloat(0.00)
     public static let typographyLetterSpacingWide = CGFloat(0.80)
     public static let typographyLetterSpacingWidest = CGFloat(1.60)
     public static let typographyLetterSpacingXtra = CGFloat(3.20)
-    public static let effectBlurMd = CGFloat(160.00)
+    public static let effectBlurMd = CGFloat(10.00)
     public static let dimensionSpacingButton = CGFloat(16.00)
     public static let dimensionSpacingTag = CGFloat(4.00)
-    public static let dimensionSizingNavHeight = CGFloat(960.00)
-    public static let dimensionSizingStatusDot = CGFloat(96.00)
-    public static let dimensionRadiusSm = CGFloat(64.00)
-    public static let dimensionRadiusMd = CGFloat(128.00)
-    public static let dimensionRadiusPill = CGFloat(15984.00)
-    public static let dimensionRadiusFull = CGFloat(800.00)
-    public static let componentButtonBaseFontSize = CGFloat(176.00)
+    public static let dimensionSizingNavHeight = CGFloat(60.00)
+    public static let dimensionSizingStatusDot = CGFloat(6.00)
+    public static let dimensionRadiusSm = CGFloat(4.00)
+    public static let dimensionRadiusMd = CGFloat(8.00)
+    public static let dimensionRadiusPill = CGFloat(999.00)
+    public static let dimensionRadiusFull = CGFloat(999.00)
+    public static let componentButtonBaseFontSize = CGFloat(11.00)
     public static let componentButtonBasePadding = CGFloat(16.00)
-    public static let componentButtonNavHeight = CGFloat(960.00)
-    public static let componentTagBaseFontSize = CGFloat(144.00)
+    public static let componentButtonNavHeight = CGFloat(60.00)
+    public static let componentTagBaseFontSize = CGFloat(9.00)
     public static let componentTagBasePadding = CGFloat(4.00)
-    public static let componentHudStatusDimension = CGFloat(96.00)
+    public static let componentHudStatusDimension = CGFloat(6.00)
+}
+
+public struct StyleDictionaryFont {
+    public static let display = "Archivo"
+    public static let body = "Inter"
+    public static let mono = "JetBrains Mono"
 }
 
 #if canImport(SwiftUI)
@@ -146,5 +152,28 @@ public extension Color {
     static let dsHudRepackBorderDefault = Color(StyleDictionaryColor.hudRepackBorderDefault)
     static let dsHudRepackBorderHover = Color(StyleDictionaryColor.hudRepackBorderHover)
     static let dsHudRepackForeground = Color(StyleDictionaryColor.hudRepackForeground)
+}
+
+public extension Font {
+    // Dynamic Font Family loaders (with system fallback)
+    static func dsDisplay(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        Font.custom(StyleDictionaryFont.display, size: size).weight(weight)
+    }
+    static func dsBody(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        Font.custom(StyleDictionaryFont.body, size: size).weight(weight)
+    }
+    static func dsMono(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        Font.custom(StyleDictionaryFont.mono, size: size).monospaced().weight(weight)
+    }
+
+    // Pre-composed Component & Semantic Typography
+    static let dsHeading1 = Font.custom(StyleDictionaryFont.display, size: 24).weight(.bold)
+    static let dsHeading2 = Font.custom(StyleDictionaryFont.display, size: 18).weight(.bold)
+    static let dsButton = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.componentButtonBaseFontSize).monospaced().weight(.semibold)
+    static let dsTag = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.componentTagBaseFontSize).monospaced().weight(.medium)
+    static let dsBodySm = Font.custom(StyleDictionaryFont.body, size: StyleDictionarySize.typographyFontSizeSm)
+    static let dsBodyXs = Font.custom(StyleDictionaryFont.body, size: StyleDictionarySize.typographyFontSizeXs)
+    static let dsMonoSm = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.typographyFontSizeSm).monospaced().weight(.medium)
+    static let dsMonoXs = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.typographyFontSizeXs).monospaced().weight(.bold)
 }
 #endif
