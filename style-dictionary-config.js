@@ -52,10 +52,10 @@ ${swiftUILines}
     }
   },
   platforms: {
-    // 1. Compile to CSS Variables for the web component library
+    // 1. Compile to CSS Variables in dist/css/
     css: {
       transformGroup: 'css',
-      buildPath: './',
+      buildPath: 'dist/css/',
       files: [{
         destination: 'variables.css',
         format: 'css/variables',
@@ -73,14 +73,20 @@ ${swiftUILines}
         format: 'ios-swift/extended'
       }]
     },
-    // 3. Compile to React Native / JS theme object
+    // 3. Compile to clean JS / TS module tokens in dist/js/
     js: {
       transformGroup: 'js',
-      buildPath: 'build/js/',
-      files: [{
-        destination: 'tokens.js',
-        format: 'javascript/module'
-      }]
+      buildPath: 'dist/js/',
+      files: [
+        {
+          destination: 'tokens.js',
+          format: 'javascript/es6'
+        },
+        {
+          destination: 'tokens.d.ts',
+          format: 'typescript/es6-declarations'
+        }
+      ]
     }
   }
 };

@@ -5,9 +5,9 @@
 It bridges the gap between designers and developers by enabling designers to inspect, update, and publish design tokens directly through conversational AI tools (like Claude Desktop, Cursor, and Antigravity IDE) without touching command lines or manually managing Git branches.
 
 When design tokens change, DesignSync automatically recompiles them into production-ready code across multiple platforms:
-* 🌐 **Web**: CSS Custom Properties (`variables.css`, `style.css`)
+* 🌐 **Web**: CSS Custom Properties (`dist/css/variables.css`)
 * 📱 **iOS & macOS**: Native Swift Package (`Sources/DesignSync/StyleDictionary.swift` with UIKit & SwiftUI extensions)
-* ⚛️ **JavaScript / React Native**: ES module tokens (`build/js/tokens.js`)
+* ⚛️ **JavaScript / TypeScript**: Clean ES module constants & type declarations (`dist/js/tokens.js`, `dist/js/tokens.d.ts`)
 
 ---
 
@@ -99,12 +99,23 @@ Open `components.html` in your web browser to visually preview the component lib
 ### Web (CSS)
 Import the generated CSS variables into your stylesheet:
 ```css
-@import './variables.css';
+@import './dist/css/variables.css';
 
 .my-button {
   background-color: var(--color-accent-base);
-  border-radius: var(--size-radius-md);
+  border-radius: var(--dimension-radius-md);
 }
+```
+
+### JavaScript / TypeScript / React
+Import lightweight, tree-shakeable token constants with full TypeScript autocomplete:
+```javascript
+import { ColorAccentBase, DimensionRadiusMd } from './dist/js/tokens.js';
+
+const buttonStyle = {
+  backgroundColor: ColorAccentBase,
+  borderRadius: DimensionRadiusMd,
+};
 ```
 
 ### iOS & macOS (Swift Package Manager)
@@ -133,8 +144,14 @@ struct ContentView: View {
 ├── mcp-server.js                 # Model Context Protocol server
 ├── style-dictionary-config.js    # Multi-platform compilation config
 ├── components.html               # Interactive visual component showcase
-├── style.css                     # Component library stylesheet
+├── style.css                     # Component showcase stylesheet
 ├── Package.swift                 # Swift Package Manager manifest
+├── dist/                         # Compiled Web & JS artifacts
+│   ├── css/
+│   │   └── variables.css         # CSS custom properties
+│   └── js/
+│       ├── tokens.js             # Clean ES module constants
+│       └── tokens.d.ts           # TypeScript type definitions
 ├── Sources/
 │   └── DesignSync/
 │       └── StyleDictionary.swift # Generated UIKit & SwiftUI tokens

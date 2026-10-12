@@ -1,0 +1,107 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+export const ColorBackgroundBase = "#0d0d0d";
+export const ColorBackgroundRaised = "#141414";
+export const ColorBackgroundOverlay = "#0d0d0d99";
+export const ColorInkPrimary = "#ffffff";
+export const ColorInkMuted = "#ffffff99";
+export const ColorInkInverse = "#000000";
+export const ColorBorderLine = "#ffffff1a";
+export const ColorAccentBase = "#bff549";
+export const ColorAccentHover = "#8cc21f";
+export const ColorAccentInk = "#0d0d0d";
+export const ColorTagsBlue = "#31a8ff";
+export const ColorTagsOrange = "#ff9a00";
+export const ColorTagsPurple = "#8e75b2";
+export const ColorTagsRed = "#f24e1e";
+export const TypographyFontFamilyDisplay = "'Archivo', sans-serif";
+export const TypographyFontFamilyBody = "'Inter', sans-serif";
+export const TypographyFontFamilyMono = "'JetBrains Mono', monospace";
+export const TypographyFontSizeXs = "9px";
+export const TypographyFontSizeSm = "11px";
+export const TypographyLetterSpacingTight = "-0.04em";
+export const TypographyLetterSpacingSnug = "-0.02em";
+export const TypographyLetterSpacingNormal = "0em";
+export const TypographyLetterSpacingWide = "0.05em";
+export const TypographyLetterSpacingWidest = "0.1em";
+export const TypographyLetterSpacingXtra = "0.2em";
+export const Opacity0 = "0";
+export const Opacity50 = "0.5";
+export const Opacity100 = "1";
+export const EffectBlurMd = "10px";
+export const TransformScale50 = "0.5";
+export const TransformScale100 = "1";
+export const DimensionSpacingButton = "1rem 2rem";
+export const DimensionSpacingTag = "0.25rem 0.5rem";
+export const DimensionSizingNavHeight = "60px";
+export const DimensionSizingStatusDot = "6px";
+export const DimensionRadiusSm = "4px";
+export const DimensionRadiusMd = "8px";
+export const DimensionRadiusPill = "999px";
+export const DimensionRadiusFull = "50%";
+export const AnimationDurationFast = "0.2s";
+export const AnimationDurationNormal = "0.3s";
+export const AnimationDurationSlow = "0.4s";
+export const AnimationDurationXSlow = "0.8s";
+export const AnimationEasingDefault = "ease";
+export const AnimationEasingOut = "ease-out";
+export const AnimationEasingInOut = "ease-in-out";
+export const AnimationEasingBounce = "cubic-bezier(0.16, 1, 0.3, 1)";
+export const ComponentButtonBaseTypography = "'JetBrains Mono', monospace";
+export const ComponentButtonBaseFontSize = "11px";
+export const ComponentButtonBasePadding = "1rem 2rem";
+export const ComponentButtonFilledBackgroundDefault = "#bff549";
+export const ComponentButtonFilledBackgroundHover = "#8cc21f";
+export const ComponentButtonFilledForeground = "#0d0d0d";
+export const ComponentButtonOutlineBorder = "#ffffff";
+export const ComponentButtonOutlineForegroundDefault = "#ffffff";
+export const ComponentButtonOutlineForegroundHover = "#000000";
+export const ComponentButtonOutlineBackgroundHover = "#ffffff";
+export const ComponentButtonNavHeight = "60px";
+export const ComponentButtonNavBackground = "#bff549";
+export const ComponentButtonNavForeground = "#0d0d0d";
+export const ComponentTagBaseTypography = "'JetBrains Mono', monospace";
+export const ComponentTagBaseFontSize = "9px";
+export const ComponentTagBasePadding = "0.25rem 0.5rem";
+export const ComponentTagBaseBorderDefault = "#ffffff1a";
+export const ComponentTagBaseBorderHover = "#bff549";
+export const ComponentTagBaseForegroundDefault = "#ffffff99";
+export const ComponentTagBaseForegroundHover = "#0d0d0d";
+export const ComponentTagBaseBackgroundHover = "#bff549";
+export const ComponentTagBlueBorderHover = "#31a8ff";
+export const ComponentTagBlueBackgroundHover = "#31a8ff";
+export const ComponentTagBlueForegroundHover = "#000000";
+export const ComponentTagOrangeBorderHover = "#ff9a00";
+export const ComponentTagOrangeBackgroundHover = "#ff9a00";
+export const ComponentTagOrangeForegroundHover = "#000000";
+export const ComponentTagPurpleBorderHover = "#8e75b2";
+export const ComponentTagPurpleBackgroundHover = "#8e75b2";
+export const ComponentTagPurpleForegroundHover = "#000000";
+export const ComponentTagRedBorderHover = "#f24e1e";
+export const ComponentTagRedBackgroundHover = "#f24e1e";
+export const ComponentTagRedForegroundHover = "#000000";
+export const ComponentLinkNavTypography = "'JetBrains Mono', monospace";
+export const ComponentLinkNavForegroundDefault = "#ffffff99";
+export const ComponentLinkNavForegroundHover = "#ffffff";
+export const ComponentLinkNavForegroundActive = "#ffffff";
+export const ComponentLinkCardTypography = "'JetBrains Mono', monospace";
+export const ComponentLinkCardForegroundDefault = "#ffffff";
+export const ComponentLinkCardForegroundHover = "#bff549";
+export const ComponentHudCardTypography = "'JetBrains Mono', monospace";
+export const ComponentHudCardNumberBackground = "#bff549";
+export const ComponentHudCardNumberForeground = "#0d0d0d";
+export const ComponentHudCardCategoryForeground = "#ffffff99";
+export const ComponentHudStatusDimension = "6px";
+export const ComponentHudStatusBackground = "#bff549";
+export const ComponentHudStatusShadow = {
+  color: "#bff549",
+  offsetX: "0px",
+  offsetY: "0px",
+  blur: "8px",
+};
+export const ComponentHudRepackBackgroundDefault = "#0d0d0d99";
+export const ComponentHudRepackBorderDefault = "#ffffff1a";
+export const ComponentHudRepackBorderHover = "#ffffff";
+export const ComponentHudRepackForeground = "#ffffff";
