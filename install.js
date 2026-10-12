@@ -66,7 +66,8 @@ try {
 
   config.mcpServers['design-sync'] = {
     command: 'node',
-    args: [serverScriptPath]
+    args: [serverScriptPath],
+    cwd: __dirname
   };
 
   fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2), 'utf8');
@@ -86,7 +87,8 @@ try {
     mcpServers: {
       "design-sync": {
         command: "node",
-        args: [serverScriptPath]
+        args: [serverScriptPath],
+        cwd: __dirname
       }
     }
   }, null, 2));

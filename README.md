@@ -66,10 +66,12 @@ Once connected, simply chat with your assistant:
 ### 1. Inspect Tokens
 > *"What colors and border radii are currently defined in our design system?"*
 
-### 2. Update Styles
+### 2. Add or Update Tokens
 > *"Update our base accent color to `#BFF549` and set the hover state to `#8CC21F`."*
 >
-> 🪄 *The assistant will modify `tokens.json` and immediately recompile CSS and Swift files.*
+> *"Add a border stroke token to filled buttons using `{color.ink.primary}`."*
+>
+> 🪄 *The assistant will add or update `tokens.json` and immediately recompile CSS, Swift, and JS files.*
 
 ### 3. Preview Live Components
 Open `components.html` in your web browser to visually preview the component library (buttons, badges, inputs, cards, switches) using the live tokens.
