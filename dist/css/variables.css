@@ -38,6 +38,7 @@
   --dimension-spacing-tag: 0.25rem 0.5rem;
   --dimension-sizing-nav-height: 60px;
   --dimension-sizing-status-dot: 6px;
+  --dimension-radius-none: 0px;
   --dimension-radius-sm: 4px;
   --dimension-radius-md: 8px;
   --dimension-radius-pill: 999px;
@@ -53,6 +54,7 @@
   --component-button-base-typography: var(--typography-font-family-mono);
   --component-button-base-font-size: var(--typography-font-size-sm);
   --component-button-base-padding: var(--dimension-spacing-button);
+  --component-button-base-radius: var(--dimension-radius-md);
   --component-button-filled-background-default: var(--color-accent-base);
   --component-button-filled-background-hover: var(--color-accent-hover);
   --component-button-filled-foreground: var(--color-accent-ink);
@@ -66,6 +68,7 @@
   --component-tag-base-typography: var(--typography-font-family-mono);
   --component-tag-base-font-size: var(--typography-font-size-xs);
   --component-tag-base-padding: var(--dimension-spacing-tag);
+  --component-tag-base-radius: var(--dimension-radius-none);
   --component-tag-base-border-default: var(--color-border-line);
   --component-tag-base-border-hover: var(--color-accent-base);
   --component-tag-base-foreground-default: var(--color-ink-muted);
@@ -91,6 +94,8 @@
   --component-link-card-foreground-default: var(--color-ink-primary);
   --component-link-card-foreground-hover: var(--color-accent-base);
   --component-hud-card-typography: var(--typography-font-family-mono);
+  --component-hud-card-radius: var(--dimension-radius-md);
+  --component-hud-card-number-radius: var(--dimension-radius-sm);
   --component-hud-card-number-background: var(--color-accent-base);
   --component-hud-card-number-foreground: var(--color-accent-ink);
   --component-hud-card-category-foreground: var(--color-ink-muted);
