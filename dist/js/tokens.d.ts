@@ -110,3 +110,5 @@ export const ComponentHudRepackBackgroundDefault: string;
 export const ComponentHudRepackBorderDefault: string;
 export const ComponentHudRepackBorderHover: string;
 export const ComponentHudRepackForeground: string;
+/** Repack panel corner radius. */
+export const ComponentHudRepackRadius: string;
