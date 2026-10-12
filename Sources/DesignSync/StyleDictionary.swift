@@ -169,8 +169,8 @@ public extension Font {
     // Pre-composed Component & Semantic Typography
     static let dsHeading1 = Font.custom(StyleDictionaryFont.display, size: 24).weight(.bold)
     static let dsHeading2 = Font.custom(StyleDictionaryFont.display, size: 18).weight(.bold)
-    static let dsButton = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.componentButtonBaseFontSize).monospaced().weight(.semibold)
-    static let dsTag = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.componentTagBaseFontSize).monospaced().weight(.medium)
+    static let dsButton = Font.custom("JetBrains Mono", size: StyleDictionarySize.componentButtonBaseFontSize).monospaced().weight(.semibold)
+    static let dsTag = Font.custom("JetBrains Mono", size: StyleDictionarySize.componentTagBaseFontSize).monospaced().weight(.medium)
     static let dsBodySm = Font.custom(StyleDictionaryFont.body, size: StyleDictionarySize.typographyFontSizeSm)
     static let dsBodyXs = Font.custom(StyleDictionaryFont.body, size: StyleDictionarySize.typographyFontSizeXs)
     static let dsMonoSm = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.typographyFontSizeSm).monospaced().weight(.medium)

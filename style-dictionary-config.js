@@ -63,6 +63,14 @@ module.exports = {
           return `    static let ${dsName} = Color(StyleDictionaryColor.${varName || t.name})`;
         }).join('\n');
 
+        const btnFontToken = dictionary.allTokens.find(t => t.name === 'componentButtonBaseTypography');
+        const btnFontFamily = btnFontToken ? (btnFontToken.$value || btnFontToken.value).split(',')[0].replace(/['"]/g, '').trim() : 'JetBrains Mono';
+        const isBtnMono = btnFontFamily.toLowerCase().includes('mono');
+
+        const tagFontToken = dictionary.allTokens.find(t => t.name === 'componentTagBaseTypography');
+        const tagFontFamily = tagFontToken ? (tagFontToken.$value || tagFontToken.value).split(',')[0].replace(/['"]/g, '').trim() : 'JetBrains Mono';
+        const isTagMono = tagFontFamily.toLowerCase().includes('mono');
+
         return `//
 // StyleDictionary.swift
 //
@@ -106,8 +114,8 @@ public extension Font {
     // Pre-composed Component & Semantic Typography
     static let dsHeading1 = Font.custom(StyleDictionaryFont.display, size: 24).weight(.bold)
     static let dsHeading2 = Font.custom(StyleDictionaryFont.display, size: 18).weight(.bold)
-    static let dsButton = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.componentButtonBaseFontSize).monospaced().weight(.semibold)
-    static let dsTag = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.componentTagBaseFontSize).monospaced().weight(.medium)
+    static let dsButton = Font.custom("${btnFontFamily}", size: StyleDictionarySize.componentButtonBaseFontSize)${isBtnMono ? '.monospaced()' : ''}.weight(.semibold)
+    static let dsTag = Font.custom("${tagFontFamily}", size: StyleDictionarySize.componentTagBaseFontSize)${isTagMono ? '.monospaced()' : ''}.weight(.medium)
     static let dsBodySm = Font.custom(StyleDictionaryFont.body, size: StyleDictionarySize.typographyFontSizeSm)
     static let dsBodyXs = Font.custom(StyleDictionaryFont.body, size: StyleDictionarySize.typographyFontSizeXs)
     static let dsMonoSm = Font.custom(StyleDictionaryFont.mono, size: StyleDictionarySize.typographyFontSizeSm).monospaced().weight(.medium)
