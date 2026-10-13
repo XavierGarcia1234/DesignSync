@@ -15,6 +15,10 @@ let package = Package(
             name: "DesignSync",
             targets: ["DesignSync"]
         ),
+        .plugin(
+            name: "TokenLinterPlugin",
+            targets: ["TokenLinterPlugin"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -25,6 +29,14 @@ let package = Package(
             name: "DesignSync",
             dependencies: [],
             path: "Sources/DesignSync"
+        ),
+        .plugin(
+            name: "TokenLinterPlugin",
+            capability: .command(
+                intent: .custom(verb: "audit-tokens", description: "Audit Swift code for DesignSync design token compliance"),
+                permissions: []
+            ),
+            path: "Plugins/TokenLinterPlugin"
         ),
     ]
 )

@@ -241,6 +241,50 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
           required: ["targetPath"]
         }
+      },
+      {
+        name: "list_components",
+        description: "List all prebuilt design system components (e.g. DSButton, DSCard, DSTag, DSHudCard) available for developers in the Swift package.",
+        inputSchema: {
+          type: "object",
+          properties: {}
+        }
+      },
+      {
+        name: "add_component",
+        description: "Export a brand new prebuilt component (e.g. 'DSAvatar', 'DSBadge') to the design system Swift package. Automatically writes to Sources/DesignSync/Components/<name>.swift and validates that the Swift package builds with zero compiler errors.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Component name (e.g., 'DSAvatar', 'DSBadge', 'DSHeader')" },
+            code: { type: "string", description: "Complete SwiftUI component code" },
+            description: { type: "string", description: "Optional description of the component purpose and parameters" }
+          },
+          required: ["name", "code"]
+        }
+      },
+      {
+        name: "update_component",
+        description: "Update the implementation of an existing prebuilt SwiftUI component in the design system and verify that the package compiles cleanly.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Component name (e.g., 'DSButton', 'DSCard')" },
+            code: { type: "string", description: "Updated SwiftUI component code" }
+          },
+          required: ["name", "code"]
+        }
+      },
+      {
+        name: "remove_component",
+        description: "Remove a prebuilt component from the design system package.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Component name to delete (e.g., 'DSAvatar')" }
+          },
+          required: ["name"]
+        }
       }
     ]
   };
@@ -788,6 +832,100 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             text: report
           }]
         };
+      }
+
+      case "list_components": {
+        const compDir = resolveProjectPath('Sources/DesignSync/Components');
+        let files = [];
+        try {
+          files = await fs.readdir(compDir);
+        } catch (_) {
+          return {
+            content: [{ type: "text", text: "No components directory found." }]
+          };
+        }
+
+        const swiftFiles = files.filter(f => f.endsWith('.swift'));
+        if (swiftFiles.length === 0) {
+          return {
+            content: [{ type: "text", text: "No prebuilt components found in the library." }]
+          };
+        }
+
+        let summary = "📦 Prebuilt Design System Components (SwiftUI / iOS):\n\n";
+        for (const file of swiftFiles) {
+          const compName = file.replace('.swift', '');
+          const filePath = path.join(compDir, file);
+          const content = await fs.readFile(filePath, 'utf8');
+          const lines = content.split('\n');
+          const docLine = lines.find(l => l.includes('public struct ' + compName)) || `public struct ${compName}`;
+          summary += `• ${compName} (${file})\n  Definition: ${docLine.trim()}\n\n`;
+        }
+
+        return {
+          content: [{ type: "text", text: summary }]
+        };
+      }
+
+      case "add_component":
+      case "update_component": {
+        const { name, code, description } = request.params.arguments || {};
+        if (!name || !code) {
+          throw new Error("Missing 'name' or 'code' parameter.");
+        }
+
+        const cleanName = name.replace(/[^a-zA-Z0-9_]/g, '');
+        const compDir = resolveProjectPath('Sources/DesignSync/Components');
+        await fs.mkdir(compDir, { recursive: true });
+        const filePath = path.join(compDir, `${cleanName}.swift`);
+
+        await fs.writeFile(filePath, code, 'utf8');
+
+        let buildError = null;
+        try {
+          await runInProject('swift build');
+        } catch (err) {
+          buildError = err.stderr || err.message;
+        }
+
+        if (buildError) {
+          return {
+            content: [{
+              type: "text",
+              text: `⚠️ Component '${cleanName}' was written to ${filePath}, but 'swift build' reported compiler errors:\n${buildError}\n\nPlease check component syntax and token references.`
+            }],
+            isError: true
+          };
+        }
+
+        return {
+          content: [{
+            type: "text",
+            text: `✅ Successfully saved and verified prebuilt component '${cleanName}' at Sources/DesignSync/Components/${cleanName}.swift!\n\nThe Swift package builds cleanly with zero errors.`
+          }]
+        };
+      }
+
+      case "remove_component": {
+        const { name } = request.params.arguments || {};
+        if (!name) throw new Error("Missing 'name' parameter.");
+        const cleanName = name.replace(/[^a-zA-Z0-9_]/g, '');
+        const filePath = resolveProjectPath(`Sources/DesignSync/Components/${cleanName}.swift`);
+        try {
+          await fs.unlink(filePath);
+          await runInProject('swift build');
+          return {
+            content: [{
+              type: "text",
+              text: `Successfully removed component '${cleanName}' from Sources/DesignSync/Components.`
+            }]
+          };
+        } catch (err) {
+          return {
+            content: [{ type: "text", text: `Error removing component: ${err.message}` }],
+            isError: true
+          };
+        }
       }
 
       default:

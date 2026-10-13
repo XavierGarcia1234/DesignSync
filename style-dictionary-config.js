@@ -60,7 +60,8 @@ module.exports = {
         const swiftColorLines = colorTokens.map(t => {
           const varName = t.path.slice(1).map((part, idx) => idx === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)).join('');
           const dsName = 'ds' + (varName.charAt(0).toUpperCase() + varName.slice(1));
-          return `    static let ${dsName} = Color(StyleDictionaryColor.${varName || t.name})`;
+          const colorVal = String(t.$value || '').replace('UIColor(', 'Color(').replace('alpha:', 'opacity:');
+          return `    static let ${dsName} = ${colorVal}`;
         }).join('\n');
 
         const btnFontToken = dictionary.allTokens.find(t => t.name === 'componentButtonBaseTypography');
@@ -77,14 +78,16 @@ module.exports = {
 // Do not edit directly, this file was auto-generated.
 //
 
+#if canImport(UIKit)
 import UIKit
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
-
 public struct StyleDictionaryColor {
 ${colorLines}
 }
+#endif
+
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 public struct StyleDictionarySize {
 ${sizeLines}
