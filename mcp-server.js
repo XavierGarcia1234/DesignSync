@@ -93,24 +93,129 @@ async function syncStyleCssPreview(tokenPath, newValue, lightValue) {
   } catch (_) {}
 }
 
-function getTokenCodeFormats(tokenPath) {
+function getTokenCodeFormats(tokenPath, tokenType) {
   const parts = tokenPath.split('.');
   // Style Dictionary kebab-cases token paths: e.g. color.accent.base -> --color-accent-base
   const cssVar = '--' + parts.map(p => p.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()).join('-');
   // JS exports use PascalCase: e.g. ColorAccentBase
   const jsExport = parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
-  // Swift uses camelCase starting from second path segment
-  const swiftPart = parts.slice(1).map((p, i) => i === 0 ? p.toLowerCase() : p.charAt(0).toUpperCase() + p.slice(1)).join('');
-  const swiftVar = swiftPart ? `StyleDictionaryColor.${swiftPart}` : `StyleDictionaryColor.${parts[0]}`;
-  const swiftUIVar = swiftPart ? `Color.ds${swiftPart.charAt(0).toUpperCase() + swiftPart.slice(1)}` : `Color.ds${parts[0]}`;
+  
+  const resolvedType = tokenType || inferTokenType(tokenPath, '');
+  
+  if (resolvedType === 'dimension') {
+    const sizeVar = parts.map((part, idx) => idx === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)).join('');
+    return {
+      css: `var(${cssVar})`,
+      cssVar: cssVar,
+      js: jsExport,
+      swift: `StyleDictionarySize.${sizeVar}`,
+      swiftUI: `StyleDictionarySize.${sizeVar}`
+    };
+  } else if (resolvedType === 'fontFamily' || resolvedType === 'typography') {
+    const fontName = parts[parts.length - 1];
+    return {
+      css: `var(${cssVar})`,
+      cssVar: cssVar,
+      js: jsExport,
+      swift: `StyleDictionaryFont.${fontName}`,
+      swiftUI: `Font.custom(StyleDictionaryFont.${fontName}, size: ...)`
+    };
+  } else {
+    // Color or fallback
+    const swiftPart = parts.slice(1).map((p, i) => i === 0 ? p.toLowerCase() : p.charAt(0).toUpperCase() + p.slice(1)).join('');
+    const swiftVar = swiftPart ? `StyleDictionaryColor.${swiftPart}` : `StyleDictionaryColor.${parts[0]}`;
+    const swiftUIVar = swiftPart ? `Color.ds${swiftPart.charAt(0).toUpperCase() + swiftPart.slice(1)}` : `Color.ds${parts[0]}`;
 
-  return {
-    css: `var(${cssVar})`,
-    cssVar: cssVar,
-    js: jsExport,
-    swift: swiftVar,
-    swiftUI: swiftUIVar
-  };
+    return {
+      css: `var(${cssVar})`,
+      cssVar: cssVar,
+      js: jsExport,
+      swift: swiftVar,
+      swiftUI: swiftUIVar
+    };
+  }
+}
+
+async function registerTokensInTokensJson(tokensInput) {
+  if (!tokensInput) return { tokensAdded: [], buildOutput: "" };
+  
+  const tokensFile = resolveProjectPath('tokens.json');
+  const rawJson = await fs.readFile(tokensFile, 'utf8');
+  let tokensData = JSON.parse(rawJson);
+
+  let tokenList = [];
+  if (Array.isArray(tokensInput)) {
+    tokenList = tokensInput;
+  } else if (typeof tokensInput === 'object' && tokensInput !== null) {
+    for (const [key, val] of Object.entries(tokensInput)) {
+      if (typeof val === 'string' || typeof val === 'number') {
+        tokenList.push({ path: key, value: String(val) });
+      } else if (typeof val === 'object' && val !== null) {
+        tokenList.push({
+          path: val.path || key,
+          value: val.$value !== undefined ? String(val.$value) : val.value !== undefined ? String(val.value) : undefined,
+          lightValue: val.lightValue || (val.$extensions && val.$extensions.mode && val.$extensions.mode.light),
+          type: val.$type || val.type,
+          description: val.$description || val.description
+        });
+      }
+    }
+  }
+
+  const addedSummaries = [];
+
+  for (const item of tokenList) {
+    if (!item.path || item.value === undefined) continue;
+    const tokenPath = item.path;
+    const value = String(item.value);
+    const lightValue = item.lightValue;
+    const tokenType = item.type || inferTokenType(tokenPath, value);
+    const description = item.description;
+
+    const keys = tokenPath.split('.');
+    let current = tokensData;
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (i === keys.length - 1) {
+        if (!current[key] || typeof current[key] !== 'object') {
+          current[key] = {};
+        }
+        current[key].$type = tokenType;
+        current[key].$value = value;
+        if (lightValue !== undefined) {
+          if (!current[key].$extensions) current[key].$extensions = {};
+          if (!current[key].$extensions.mode) current[key].$extensions.mode = {};
+          current[key].$extensions.mode.light = lightValue;
+        }
+        if (description) {
+          current[key].$description = description;
+        }
+      } else {
+        if (!current[key] || typeof current[key] !== 'object') {
+          current[key] = {};
+        }
+        current = current[key];
+      }
+    }
+
+    const codeFmt = getTokenCodeFormats(tokenPath, tokenType);
+    addedSummaries.push({
+      path: tokenPath,
+      type: tokenType,
+      value,
+      lightValue,
+      description,
+      codeFmt
+    });
+  }
+
+  if (addedSummaries.length > 0) {
+    await fs.writeFile(tokensFile, JSON.stringify(tokensData, null, 2), 'utf8');
+    const { stdout } = await runInProject('npx style-dictionary build -c style-dictionary-config.js');
+    return { tokensAdded: addedSummaries, buildOutput: stdout };
+  }
+
+  return { tokensAdded: [], buildOutput: "" };
 }
 
 const server = new Server(
@@ -252,25 +357,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "add_component",
-        description: "Export a brand new prebuilt component (e.g. 'DSAvatar', 'DSBadge') to the design system Swift package. Automatically writes to Sources/DesignSync/Components/<name>.swift and validates that the Swift package builds with zero compiler errors.",
+        description: "Export a brand new prebuilt component (e.g. 'DSAvatar', 'DSBadge', 'DSHeader') to the design system Swift package. CRITICAL: tokens.json is the single source of truth. If the component or feature introduces any new design tokens (such as colors, dimensions, radii, padding, spacing, or typography styles), provide them in 'tokens'. The tool will automatically log and register them into tokens.json (DTCG format), compile them to CSS variables, JS tokens, and iOS Swift (StyleDictionary.swift), write the SwiftUI component to Sources/DesignSync/Components/<name>.swift referencing the compiled tokens, and validate that 'swift build' compiles with zero errors.",
         inputSchema: {
           type: "object",
           properties: {
-            name: { type: "string", description: "Component name (e.g., 'DSAvatar', 'DSBadge', 'DSHeader')" },
+            name: { type: "string", description: "Component name in PascalCase (e.g., 'DSAvatar', 'DSBadge', 'DSHeader')" },
             code: { type: "string", description: "Complete SwiftUI component code" },
-            description: { type: "string", description: "Optional description of the component purpose and parameters" }
+            description: { type: "string", description: "Optional description of the component purpose, parameters, and design intent" },
+            tokens: {
+              type: "array",
+              description: "Optional list of new design tokens to register in tokens.json (DTCG standard) for this component. Each item specifies: path (e.g. 'component.badge.background.default'), value (e.g. '#6366f1' or alias '{color.accent.base}'), lightValue (optional), type ('color', 'dimension', 'typography', etc.), and description.",
+              items: {
+                type: "object",
+                properties: {
+                  path: { type: "string", description: "Dot-notation token path (e.g. 'component.badge.radius' or 'component.badge.background.default')" },
+                  value: { type: "string", description: "Default or dark mode token value or alias" },
+                  lightValue: { type: "string", description: "Optional light mode value ($extensions.mode.light)" },
+                  type: { type: "string", description: "DTCG token type ('color', 'dimension', 'typography', 'fontFamily', etc.)" },
+                  description: { type: "string", description: "Description for documentation" }
+                },
+                required: ["path", "value"]
+              }
+            }
           },
           required: ["name", "code"]
         }
       },
       {
         name: "update_component",
-        description: "Update the implementation of an existing prebuilt SwiftUI component in the design system and verify that the package compiles cleanly.",
+        description: "Update an existing prebuilt SwiftUI component in the design system. Can also add or update tokens in tokens.json if the component updates require new colors, radii, or type styles. Validates the Swift package compiles cleanly.",
         inputSchema: {
           type: "object",
           properties: {
             name: { type: "string", description: "Component name (e.g., 'DSButton', 'DSCard')" },
-            code: { type: "string", description: "Updated SwiftUI component code" }
+            code: { type: "string", description: "Updated SwiftUI component code" },
+            tokens: {
+              type: "array",
+              description: "Optional new or updated design tokens to sync into tokens.json for this component."
+            }
           },
           required: ["name", "code"]
         }
@@ -352,7 +476,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { stdout } = await runInProject('npx style-dictionary build -c style-dictionary-config.js');
         await syncStyleCssPreview(tokenPath, value, lightValue);
         
-        const codeFmt = getTokenCodeFormats(tokenPath);
+        const codeFmt = getTokenCodeFormats(tokenPath, tokenType);
         return { 
           content: [{ 
             type: "text", 
@@ -426,7 +550,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }
         }
 
-        const codeFmt = getTokenCodeFormats(tokenPath);
+        const codeFmt = getTokenCodeFormats(tokenPath, newType);
         return { 
           content: [{ 
             type: "text", 
@@ -869,18 +993,47 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "add_component":
       case "update_component": {
-        const { name, code, description } = request.params.arguments || {};
+        const { name, code, description, tokens } = request.params.arguments || {};
         if (!name || !code) {
           throw new Error("Missing 'name' or 'code' parameter.");
         }
 
         const cleanName = name.replace(/[^a-zA-Z0-9_]/g, '');
+
+        // 1. If tokens are provided, register them in tokens.json FIRST and recompile Style Dictionary!
+        let tokenSyncReport = "";
+        if (tokens) {
+          try {
+            const { tokensAdded, buildOutput } = await registerTokensInTokensJson(tokens);
+            if (tokensAdded.length > 0) {
+              tokenSyncReport = `\n📋 Design Tokens Registered in tokens.json (Single Source of Truth):\n`;
+              for (const t of tokensAdded) {
+                tokenSyncReport += `• ${t.path} (${t.type}): ${t.value}${t.lightValue ? ` [Light: ${t.lightValue}]` : ''}\n`;
+                tokenSyncReport += `  Swift Accessor: ${t.codeFmt.swiftUI}\n`;
+                tokenSyncReport += `  CSS Variable:   var(${t.codeFmt.cssVar})\n`;
+                tokenSyncReport += `  JS Module:      ${t.codeFmt.js}\n`;
+              }
+              tokenSyncReport += `\nStyle Dictionary compilation completed across CSS, JS, and Swift.\n`;
+            }
+          } catch (tokErr) {
+            return {
+              content: [{
+                type: "text",
+                text: `❌ Error logging component tokens to tokens.json: ${tokErr.message}`
+              }],
+              isError: true
+            };
+          }
+        }
+
+        // 2. Write the component Swift source code
         const compDir = resolveProjectPath('Sources/DesignSync/Components');
         await fs.mkdir(compDir, { recursive: true });
         const filePath = path.join(compDir, `${cleanName}.swift`);
 
         await fs.writeFile(filePath, code, 'utf8');
 
+        // 3. Validate compilation with swift build
         let buildError = null;
         try {
           await runInProject('swift build');
@@ -892,7 +1045,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           return {
             content: [{
               type: "text",
-              text: `⚠️ Component '${cleanName}' was written to ${filePath}, but 'swift build' reported compiler errors:\n${buildError}\n\nPlease check component syntax and token references.`
+              text: `⚠️ Component '${cleanName}' was written to Sources/DesignSync/Components/${cleanName}.swift, but 'swift build' reported compiler errors:\n${buildError}\n${tokenSyncReport}\nPlease check component syntax and token references.`
             }],
             isError: true
           };
@@ -901,7 +1054,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return {
           content: [{
             type: "text",
-            text: `✅ Successfully saved and verified prebuilt component '${cleanName}' at Sources/DesignSync/Components/${cleanName}.swift!\n\nThe Swift package builds cleanly with zero errors.`
+            text: `✅ Successfully saved and verified prebuilt component '${cleanName}' at Sources/DesignSync/Components/${cleanName}.swift!\n\nThe Swift package builds cleanly with zero errors.${tokenSyncReport}`
           }]
         };
       }
