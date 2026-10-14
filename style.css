@@ -5,9 +5,9 @@
     --ink: #ffffff;
     --ink-muted: rgba(var(--ink-rgb), 0.6);
     --line: rgba(var(--ink-rgb), 0.1);
-    --accent: #BFF549;
+    --accent: #FF5F1F;
     /* The neon lime green */
-    --accent-hover: #8CC21F;
+    --accent-hover: #D94A0F;
     --accent-ink: #0d0d0d;
     /* Dark text on green background */
     
@@ -82,8 +82,8 @@
     --ink: #000000;
     --ink-muted: rgba(var(--ink-rgb), 0.6);
     --line: rgba(var(--ink-rgb), 0.1);
-    --accent: #4b8c00;
-    --accent-hover: #376600;
+    --accent: #C2410C;
+    --accent-hover: #9A3412;
     --accent-ink: #ffffff;
 
     --bg-rgb: 245, 245, 245;
