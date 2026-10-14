@@ -10,8 +10,8 @@
   --color-ink-muted: rgba(255, 255, 255, 0.6);
   --color-ink-inverse: #000000;
   --color-border-line: rgba(255, 255, 255, 0.1);
-  --color-accent-base: #5b7cff;
-  --color-accent-hover: #3f5fe6;
+  --color-accent-base: #bff549;
+  --color-accent-hover: #8cc21f;
   --color-accent-ink: #0d0d0d;
   --color-tags-blue: #31a8ff;
   --color-tags-orange: #ff9a00;
@@ -54,7 +54,7 @@
   --component-button-base-typography: var(--typography-font-family-mono);
   --component-button-base-font-size: var(--typography-font-size-sm);
   --component-button-base-padding: var(--dimension-spacing-button);
-  --component-button-base-radius: var(--dimension-radius-pill);
+  --component-button-base-radius: var(--dimension-radius-none);
   --component-button-filled-background-default: var(--color-accent-base);
   --component-button-filled-background-hover: var(--color-accent-hover);
   --component-button-filled-foreground: var(--color-accent-ink);
@@ -68,7 +68,7 @@
   --component-tag-base-typography: var(--typography-font-family-mono);
   --component-tag-base-font-size: var(--typography-font-size-xs);
   --component-tag-base-padding: var(--dimension-spacing-tag);
-  --component-tag-base-radius: var(--dimension-radius-pill);
+  --component-tag-base-radius: var(--dimension-radius-none);
   --component-tag-base-border-default: var(--color-border-line);
   --component-tag-base-border-hover: var(--color-accent-base);
   --component-tag-base-foreground-default: var(--color-ink-muted);
@@ -94,8 +94,8 @@
   --component-link-card-foreground-default: var(--color-ink-primary);
   --component-link-card-foreground-hover: var(--color-accent-base);
   --component-hud-card-typography: var(--typography-font-family-mono);
-  --component-hud-card-radius: var(--dimension-radius-md);
-  --component-hud-card-number-radius: var(--dimension-radius-sm);
+  --component-hud-card-radius: var(--dimension-radius-none);
+  --component-hud-card-number-radius: var(--dimension-radius-none);
   --component-hud-card-number-background: var(--color-accent-base);
   --component-hud-card-number-foreground: var(--color-accent-ink);
   --component-hud-card-category-foreground: var(--color-ink-muted);
@@ -106,5 +106,5 @@
   --component-hud-repack-border-default: var(--color-border-line);
   --component-hud-repack-border-hover: var(--color-ink-primary);
   --component-hud-repack-foreground: var(--color-ink-primary);
-  --component-hud-repack-radius: var(--dimension-radius-pill); /** Repack panel corner radius. */
+  --component-hud-repack-radius: var(--dimension-radius-none); /** Repack panel corner radius. */
 }
