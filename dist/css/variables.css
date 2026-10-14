@@ -10,7 +10,7 @@
   --color-ink-muted: rgba(255, 255, 255, 0.6);
   --color-ink-inverse: #000000;
   --color-border-line: rgba(255, 255, 255, 0.1);
-  --color-accent-base: #ff5f1f;
+  --color-accent-base: #ff5f1f; /** Brand accent (orange). Used by filled and nav buttons, tag hovers, card-link hovers, HUD number chips and the status dot. */
   --color-accent-hover: #d94a0f;
   --color-accent-ink: #0d0d0d;
   --color-tags-blue: #31a8ff;

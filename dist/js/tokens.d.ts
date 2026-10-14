@@ -9,6 +9,7 @@ export const ColorInkPrimary: string;
 export const ColorInkMuted: string;
 export const ColorInkInverse: string;
 export const ColorBorderLine: string;
+/** Brand accent (orange). Used by filled and nav buttons, tag hovers, card-link hovers, HUD number chips and the status dot. */
 export const ColorAccentBase: string;
 export const ColorAccentHover: string;
 export const ColorAccentInk: string;
